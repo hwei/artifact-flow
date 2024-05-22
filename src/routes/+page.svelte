@@ -1,11 +1,14 @@
 <script lang="ts">
-    
-    import { SvelteFlowProvider } from '@xyflow/svelte';
     import Flow from '$lib/Flow.svelte';
 </script>
 
 <main>
-    <SvelteFlowProvider>
-        <Flow />
-    </SvelteFlowProvider>
+    <Flow />
 </main>
+
+<style>
+    main {
+        height: 100vh;
+        width: 100vw;
+    }
+</style>
