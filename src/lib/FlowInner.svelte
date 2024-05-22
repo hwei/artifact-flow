@@ -86,6 +86,18 @@
         a.remove();
     }
 
+    function loadFromJsonText(jsonText: string) {
+        const data = JSON.parse(jsonText);
+        const maxNodeId = data.nodes.reduce((maxId: number, node: Node) => {
+            const id = parseInt(node.id);
+            return id > maxId ? id : maxId;
+        }, 0);
+        nextNodeId = maxNodeId + 1;
+
+        nodes.set(data.nodes);
+        edges.set(data.edges);
+    }
+
     function handleLoad() {
         const input = document.createElement("input");
         input.type = "file";
@@ -96,15 +108,7 @@
                 return;
             }
             const text = await file.text();
-            const data = JSON.parse(text);
-            const maxNodeId = data.nodes.reduce((maxId: number, node: Node) => {
-                const id = parseInt(node.id);
-                return id > maxId ? id : maxId;
-            }, 0);
-            nextNodeId = maxNodeId + 1;
-
-            nodes.set(data.nodes);
-            edges.set(data.edges);
+            loadFromJsonText(text);
             input.remove();
         };
         input.click();
@@ -114,6 +118,36 @@
         nodes.set([]);
         edges.set([]);
         nextNodeId = 1;
+    }
+
+    function onDragOver(event: DragEvent) {
+        event.preventDefault();
+
+        if (event.dataTransfer?.types.includes("application/json")) {
+            event.dataTransfer.dropEffect = "copy";
+        }
+    }
+
+    function onDrop(event: DragEvent) {
+        event.preventDefault();
+        
+
+        const file = event.dataTransfer?.files?.[0];
+        console.log("drop", file);
+        if (!file) {
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            console.log("reader.onload", e);
+            if (!e.target) {
+                return;
+            }
+            const text = e.target.result as string;
+            loadFromJsonText(text);
+        };
+        reader.readAsText(file);
     }
 </script>
 
@@ -125,6 +159,8 @@
         fitView
         on:panecontextmenu={(e) => handlePaneContextMenu(e.detail.event)}
         on:paneclick={() => handleContexMenuClick()}
+        on:dragover={onDragOver}
+        on:drop={onDrop}
     >
         <div class="controls">
             <button on:click={handleSave}>Save</button>
