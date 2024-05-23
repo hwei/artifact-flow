@@ -72,11 +72,8 @@
         nextNodeId++;
     }
 
-    function handleSave() {
-        const data = toObject();
-        console.log(data);
-        const jsonString = JSON.stringify(data, null, 2);
-        const blob = new Blob([jsonString], { type: "application/json" });
+    function saveFileWithBlob(text: string) {
+        const blob = new Blob([text], { type: "application/json" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
@@ -84,6 +81,34 @@
         a.click();
         URL.revokeObjectURL(url);
         a.remove();
+    }
+    
+    let fileHandle: FileSystemFileHandle | undefined;
+
+    async function saveFileWithFileSystem(fileHandle: FileSystemFileHandle, text: string) {
+        let writable: FileSystemWritableFileStream | undefined;
+        try {
+            writable = await fileHandle.createWritable();
+            await writable.write(text);
+        } catch (err) {
+            console.error(err);
+            saveFileWithBlob(text);
+        }
+        if (writable !== undefined) {
+            await writable.close();
+        }
+    }
+
+    function handleSave() {
+        const data = toObject();
+        const jsonString = JSON.stringify(data, null, 2);
+
+        if (fileHandle !== undefined) {
+            saveFileWithFileSystem(fileHandle, jsonString);
+            return;
+        } else {
+            saveFileWithBlob(jsonString);
+        }
     }
 
     function loadFromJsonText(jsonText: string) {
@@ -98,7 +123,36 @@
         edges.set(data.edges);
     }
 
+    async function selectFile(startFile?: File) {
+        if (!('showOpenFilePicker' in window)) {
+            return;
+        }
+        try {
+            [ fileHandle ] = await (window.showOpenFilePicker as any)({
+                suggestedName: startFile ? startFile.name : undefined,
+                types: [{
+                    description: "JSON files",
+                    accept: {
+                        "application/json": [".json"],
+                    },
+                }],
+            });
+            if (fileHandle !== undefined) {
+                console.log('fileHandle', fileHandle);
+                const file = await fileHandle.getFile();
+                const text = await file.text();
+                loadFromJsonText(text);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
     function handleLoad() {
+        if ('showOpenFilePicker' in window) {
+            selectFile();
+            return;
+        }
         const input = document.createElement("input");
         input.type = "file";
         input.accept = ".json";
@@ -139,17 +193,23 @@
 
     function onDrop(event: DragEvent) {
         event.preventDefault();
-        
 
-        const file = event.dataTransfer?.files?.[0];
-        console.log("drop", file);
+        if (!event.dataTransfer) {
+            return;
+        }
+
+        const [file] = event.dataTransfer.files;
         if (!file) {
             return;
         }
 
+        if ('showOpenFilePicker' in window) {
+            selectFile(file);
+            return;
+        };
+
         const reader = new FileReader();
         reader.onload = async (e) => {
-            console.log("reader.onload", e);
             if (!e.target) {
                 return;
             }
