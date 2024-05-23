@@ -44,7 +44,7 @@
 <style>
     .artifact-node {
         padding: 1rem;
-        background: #eee;
+        background: #fff;
         font-size: 0.7rem;
         border-radius: 50%;
         border: #ddd solid 0.125rem;

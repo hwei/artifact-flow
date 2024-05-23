@@ -1,7 +1,6 @@
 <script lang="ts">
     import { writable } from "svelte/store";
     import {
-        SvelteFlowProvider,
         SvelteFlow,
         useSvelteFlow,
         Background,
@@ -13,15 +12,17 @@
 
     import "@xyflow/svelte/dist/style.css";
 
-    import ArtifactNode from "$lib/ArtifactNode.svelte";
-    import ProcessNode from "$lib/ProcessNode.svelte";
-    import ContextMenu from "$lib/ContextMenu.svelte";
+    import ArtifactNode from "./ArtifactNode.svelte";
+    import ProcessNode from "./ProcessNode.svelte";
+    import ContextMenu from "./ContextMenu.svelte";
+    import NoteNode from "./NoteNode.svelte";
 
     const { screenToFlowPosition, toObject } = useSvelteFlow();
 
     const nodeTypes = {
         artifact: ArtifactNode,
         process: ProcessNode,
+        note: NoteNode,
     };
     const nodeTypeNames = Object.keys(nodeTypes);
 
