@@ -36,7 +36,11 @@
     .artifact-node {
         padding: 1rem;
         background: #eee;
-        border-radius: 50%;
         font-size: 0.7rem;
+        border-radius: 50%;
+        border: #ddd solid 0.125rem;
+    }
+    :global(.svelte-flow__node.selected) > .artifact-node {
+        border: #444 solid 0.125rem;
     }
 </style>

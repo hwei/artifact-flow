@@ -115,7 +115,16 @@
     }
 
     function handleClear() {
-        nodes.set([]);
+        nodes.set([{
+            id: "0",
+            position: { x: 0, y: 0 },
+            data: { label: "aaa" },
+        },{
+            id: "-1",
+            position: { x: 0, y: 0 },
+            data: { name: "aaa" },
+            type: "process"
+        }]);
         edges.set([]);
         nextNodeId = 1;
     }
@@ -157,6 +166,8 @@
         {nodes}
         {edges}
         fitView
+        panOnDrag={[1]}
+        selectionOnDrag={true}
         on:panecontextmenu={(e) => handlePaneContextMenu(e.detail.event)}
         on:paneclick={() => handleContexMenuClick()}
         on:dragover={onDragOver}

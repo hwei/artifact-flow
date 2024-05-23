@@ -36,7 +36,10 @@
     .process-node {
         padding: 1rem;
         background: #eee;
-        border-radius: 0.125rem;
         font-size: 0.7rem;
+        border: #ddd solid 0.125rem;
+    }
+    :global(.svelte-flow__node.selected) > .process-node {
+        border: #444 solid 0.125rem;
     }
 </style>
