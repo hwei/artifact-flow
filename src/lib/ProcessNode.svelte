@@ -24,6 +24,8 @@
         const targetNode = getNode(connection.target);
         return targetNode?.type !== "process";
     };
+
+    $$restProps;
 </script>
 
 <div class="process-node">
