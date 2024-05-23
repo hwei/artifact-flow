@@ -99,13 +99,30 @@
         }
     }
 
-    function handleSave() {
+    async function handleSave() {
         const data = toObject();
         const jsonString = JSON.stringify(data, null, 2);
 
-        if (fileHandle !== undefined) {
-            saveFileWithFileSystem(fileHandle, jsonString);
-            return;
+        if ('showSaveFilePicker' in window) {
+            if (fileHandle === undefined) {
+                try {
+                    fileHandle = await (window.showSaveFilePicker as any)({
+                        suggestedName: 'flow.json',
+                        types: [{
+                            description: "JSON files",
+                            accept: {
+                                "application/json": [".json"],
+                            },
+                        }],
+                    });
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+
+            if (fileHandle !== undefined) {
+                saveFileWithFileSystem(fileHandle, jsonString);
+            }
         } else {
             saveFileWithBlob(jsonString);
         }
@@ -168,19 +185,11 @@
         input.click();
     }
 
-    function handleClear() {
-        nodes.set([{
-            id: "0",
-            position: { x: 0, y: 0 },
-            data: { label: "aaa" },
-        },{
-            id: "-1",
-            position: { x: 0, y: 0 },
-            data: { name: "aaa" },
-            type: "process"
-        }]);
+    function handleClose() {
+        nodes.set([]);
         edges.set([]);
         nextNodeId = 1;
+        fileHandle = undefined;
     }
 
     function onDragOver(event: DragEvent) {
@@ -205,18 +214,17 @@
 
         if ('showOpenFilePicker' in window) {
             selectFile(file);
-            return;
-        };
-
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            if (!e.target) {
-                return;
-            }
-            const text = e.target.result as string;
-            loadFromJsonText(text);
-        };
-        reader.readAsText(file);
+        } else {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                if (!e.target) {
+                    return;
+                }
+                const text = e.target.result as string;
+                loadFromJsonText(text);
+            };
+            reader.readAsText(file);
+        }
     }
 </script>
 
@@ -235,9 +243,10 @@
         on:drop={onDrop}
     >
         <div class="controls">
+            <div>{fileHandle ? fileHandle.name : ''}</div>
             <button on:click={handleSave}>Save</button>
             <button on:click={handleLoad}>Load</button>
-            <button on:click={handleClear}>Clear</button>
+            <button on:click={handleClose}>Close</button>
         </div>
         <Background />
         <Controls />
