@@ -166,6 +166,7 @@
         {nodes}
         {edges}
         fitView
+        minZoom={0.1}
         panOnDrag={[1]}
         selectionOnDrag={true}
         on:panecontextmenu={(e) => handlePaneContextMenu(e.detail.event)}
