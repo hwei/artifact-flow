@@ -13,29 +13,27 @@
     };
 </script>
 
-<button on:click={handleClick}>
-    {#if editing}
-        <input
-            bind:this={inputElement}
-            class="nodrag"
-            type="string"
-            on:input={(evt) => {
-                text = evt.currentTarget?.value;
-            }}
-            on:keydown={(evt) => {
-                if (evt.key === "Enter") {
-                    editing = false;
-                }
-            }}
-            on:blur={() => {
+{#if editing}
+    <input
+        bind:this={inputElement}
+        class="nodrag"
+        type="string"
+        on:input={(evt) => {
+            text = evt.currentTarget?.value;
+        }}
+        on:keydown={(evt) => {
+            if (evt.key === "Enter") {
                 editing = false;
-            }}
-            bind:value={text}
-        />
-    {:else}
-        <strong>{text}</strong>
-    {/if}
-</button>
+            }
+        }}
+        on:blur={() => {
+            editing = false;
+        }}
+        bind:value={text}
+    />
+{:else}
+    <button on:click={handleClick}><strong>{text}</strong></button>
+{/if}
 
 <style>
     button {
